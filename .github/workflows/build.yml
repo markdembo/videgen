@@ -48,10 +48,17 @@ jobs:
           rm -rf Payload
           echo "IPA size: $(du -sh VidGen.ipa | cut -f1)"
 
+      - name: Set sanitised artifact name
+        run: |
+          SAFE_BRANCH="${{ github.ref_name }}"
+          SAFE_BRANCH="${SAFE_BRANCH//\//-}"          # replace / with -
+          SHORT_SHA="${{ github.sha }}"
+          SHORT_SHA="${SHORT_SHA:0:7}"
+          echo "ARTIFACT_NAME=VidGen-${SAFE_BRANCH}-${SHORT_SHA}" >> "$GITHUB_ENV"
+
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          # Artifact name includes branch + short SHA for traceability
-          name: VidGen-${{ github.ref_name }}-${{ github.sha }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: VidGen.ipa
           retention-days: 30
